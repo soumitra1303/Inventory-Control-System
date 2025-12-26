@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Item - Inventory Control System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">📦 Inventory Control System</div>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">Dashboard</a>
+            <a href="{{ url_for('add_item') }}">Add Item</a>
+            <a href="{{ url_for('reports') }}">Reports</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="form-container">
+            <h1>✏️ Edit Inventory Item</h1>
+            
+            <form method="POST" action="{{ url_for('edit_item', id=item['id']) }}" class="item-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Item Name *</label>
+                        <input type="text" id="name" name="name" required value="{{ item['name'] }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <select id="category" name="category" required>
+                            <option value="Electronics" {% if item['category'] == 'Electronics' %}selected{% endif %}>Electronics</option>
+                            <option value="Furniture" {% if item['category'] == 'Furniture' %}selected{% endif %}>Furniture</option>
+                            <option value="Stationery" {% if item['category'] == 'Stationery' %}selected{% endif %}>Stationery</option>
+                            <option value="Appliances" {% if item['category'] == 'Appliances' %}selected{% endif %}>Appliances</option>
+                            <option value="Tools" {% if item['category'] == 'Tools' %}selected{% endif %}>Tools</option>
+                            <option value="Others" {% if item['category'] == 'Others' %}selected{% endif %}>Others</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantity">Quantity *</label>
+                        <input type="number" id="quantity" name="quantity" required min="0" value="{{ item['quantity'] }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="unit_price">Unit Price (₹) *</label>
+                        <input type="number" id="unit_price" name="unit_price" required min="0" step="0.01" value="{{ item['unit_price'] }}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="supplier">Supplier *</label>
+                        <input type="text" id="supplier" name="supplier" required value="{{ item['supplier'] }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="min_stock_level">Minimum Stock Level *</label>
+                        <input type="number" id="min_stock_level" name="min_stock_level" required min="0" value="{{ item['min_stock_level'] }}">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4">{{ item['description'] or '' }}</textarea>
+                </div>
+
+                <div class="info-box">
+                    <p><strong>Last Updated:</strong> {{ item['last_updated'] }}</p>
+                    <p><strong>Total Value:</strong> ₹{{ "%.2f"|format(item['quantity'] * item['unit_price']) }}</p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">💾 Update Item</button>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">❌ Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Control System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">📦 Inventory Control System</div>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}" class="active">Dashboard</a>
+            <a href="{{ url_for('add_item') }}">Add Item</a>
+            <a href="{{ url_for('reports') }}">Reports</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Inventory Dashboard</h1>
+            <button onclick="showLowStock()" class="btn btn-warning">⚠️ Low Stock Alert</button>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-info">
+                    <h3>Total Items</h3>
+                    <p class="stat-value">{{ stats['total_items'] }}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-info">
+                    <h3>Total Quantity</h3>
+                    <p class="stat-value">{{ stats['total_quantity'] }}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <h3>Total Value</h3>
+                    <p class="stat-value">₹{{ "%.2f"|format(stats['total_value'] or 0) }}</p>
+                </div>
+            </div>
+            <div class="stat-card alert">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-info">
+                    <h3>Low Stock Items</h3>
+                    <p class="stat-value">{{ stats['low_stock_count'] }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="search-section">
+            <input type="text" id="searchInput" placeholder="🔍 Search items..." class="search-input">
+            <select id="categoryFilter" class="category-filter">
+                <option value="">All Categories</option>
+            </select>
+        </div>
+
+        <!-- Inventory Table -->
+        <div class="table-container">
+            <table class="inventory-table" id="inventoryTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total Value</th>
+                        <th>Supplier</th>
+                        <th>Min Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr data-id="{{ item['id'] }}" class="{% if item['quantity'] <= item['min_stock_level'] %}low-stock{% endif %}">
+                        <td>{{ item['id'] }}</td>
+                        <td><strong>{{ item['name'] }}</strong></td>
+                        <td><span class="badge">{{ item['category'] }}</span></td>
+                        <td>
+                            <input type="number" 
+                                   value="{{ item['quantity'] }}" 
+                                   class="qty-input" 
+                                   data-id="{{ item['id'] }}"
+                                   min="0">
+                        </td>
+                        <td>₹{{ "%.2f"|format(item['unit_price']) }}</td>
+                        <td><strong>₹{{ "%.2f"|format(item['quantity'] * item['unit_price']) }}</strong></td>
+                        <td>{{ item['supplier'] }}</td>
+                        <td>{{ item['min_stock_level'] }}</td>
+                        <td>
+                            {% if item['quantity'] <= item['min_stock_level'] %}
+                                <span class="status-badge low">Low Stock</span>
+                            {% elif item['quantity'] <= item['min_stock_level'] * 2 %}
+                                <span class="status-badge medium">Medium</span>
+                            {% else %}
+                                <span class="status-badge high">Good</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('edit_item', id=item['id']) }}" class="btn-edit" title="Edit">✏️</a>
+                                <button onclick="deleteItem({{ item['id'] }})" class="btn-delete" title="Delete">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Low Stock Modal -->
+    <div id="lowStockModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>⚠️ Low Stock Alert</h2>
+            <div id="lowStockList"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
